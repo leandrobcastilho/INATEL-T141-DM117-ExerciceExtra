@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class ObstatculoComp : MonoBehaviour {
+public class ObstacleComp : MonoBehaviour {
 
     private ConfigComp config;
 
-    private PainelValueLifeComp painelValueLife;
+    private PanelValueLifeComp painelValueLife;
 
     private GameOverComp gameOver;
 
@@ -23,21 +23,26 @@ public class ObstatculoComp : MonoBehaviour {
 
     private void OnCollisionEnter(Collision collision)
     {
-        BolaComp bolaComp = collision.gameObject.GetComponent<BolaComp>();
+        BallComp bolaComp = collision.gameObject.GetComponent<BallComp>();
         if (bolaComp)
         {
             rb.AddForce(0, 0, bolaComp.resultVelocidadeHorizontal);
 
-            --config.valueLifes;
+            --config.numLifes;
 
-            painelValueLife.updateValueLifes(config.valueLifes);
+            painelValueLife.updateValueLifes(config.numLifes);
 
-            if (config.valueLifes <= 0)
+            if (config.numLifes <= 0)
             {
                 gameOver.Show();
                 Destroy(collision.gameObject);
-                Invoke("Reset", config.tempoEspera);
+                Invoke("Reset", config.waitTime);
             }
+            else
+            {
+                (gameObject.GetComponent(typeof(Collider)) as Collider).isTrigger = true;
+            }
+
             //print("lifes: "+ config.lifes);
         }
     }
@@ -46,7 +51,7 @@ public class ObstatculoComp : MonoBehaviour {
     void Start()
     {
         config = GameObject.FindObjectOfType<ConfigComp>();
-        painelValueLife = GameObject.FindObjectOfType<PainelValueLifeComp>();
+        painelValueLife = GameObject.FindObjectOfType<PanelValueLifeComp>();
         gameOver = GameObject.FindObjectOfType<GameOverComp>();
 
         rb = GetComponent<Rigidbody>();

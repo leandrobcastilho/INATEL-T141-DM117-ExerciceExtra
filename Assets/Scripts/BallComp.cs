@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BolaComp : MonoBehaviour {
+public class BallComp : MonoBehaviour {
 
     private ConfigComp config;
 
@@ -27,7 +27,7 @@ public class BolaComp : MonoBehaviour {
         {
             
             float direcaoX = calculaMovimento(Input.mousePosition);
-            resultVelocidadeLateral = direcaoX * config.velocidadeLateral;
+            resultVelocidadeLateral = direcaoX * config.lateralSpeed;
         }
         else
         {
@@ -35,15 +35,15 @@ public class BolaComp : MonoBehaviour {
             {
                 Touch toque = Input.touches[0];
                 float direcaoX = calculaMovimento(toque.position);
-                resultVelocidadeLateral = direcaoX * config.velocidadeLateral;
+                resultVelocidadeLateral = direcaoX * config.lateralSpeed;
 
             }
             else
             {
                 var estimuloHorizontal = Input.GetAxis("Horizontal");
                 var estimuloVertical = Input.GetAxis("Vertical");
-                resultVelocidadeLateral = estimuloHorizontal * config.velocidadeLateral;
-                resultVelocidadeHorizontal = config.velocidadeHorizontal + estimuloVertical * config.velocidadeHorizontal;
+                resultVelocidadeLateral = estimuloHorizontal * config.lateralSpeed;
+                resultVelocidadeHorizontal = config.horizontalSpeed + estimuloVertical * config.horizontalSpeed;
             }
         }
         

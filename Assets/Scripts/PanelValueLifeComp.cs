@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 
-public class PainelValueLifeComp : MonoBehaviour {
+public class PanelValueLifeComp : MonoBehaviour {
 
     private Text myText;
 

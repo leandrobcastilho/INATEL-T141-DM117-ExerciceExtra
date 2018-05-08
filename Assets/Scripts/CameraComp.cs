@@ -25,7 +25,7 @@ public class CameraComp : MonoBehaviour {
         {
             //transform.LookAt(alvo.transform);
             transform.LookAt(alvo);
-            transform.position = alvo.position + config.cameraOffset;
+            transform.position = alvo.position + config.camOffset;
         }
 
     }

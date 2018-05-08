@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FimTileComp : MonoBehaviour {
+public class EndTileComp : MonoBehaviour {
 
     [SerializeField]
     [Tooltip("Tempo que o Tile permanece apos o objeto passar")]
@@ -23,9 +23,9 @@ public class FimTileComp : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<BolaComp>())
+        if (other.GetComponent<BallComp>())
         {
-            GameObject.FindObjectOfType<ControladorComp>().SpawnsProxTile();
+            GameObject.FindObjectOfType<ControllerComp>().SpawnsProxTile();
 
             Destroy(transform.parent.gameObject, tempoVidaTile);
         }

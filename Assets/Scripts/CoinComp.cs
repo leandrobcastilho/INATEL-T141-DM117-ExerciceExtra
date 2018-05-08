@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LifeComp : MonoBehaviour {
+public class CoinComp : MonoBehaviour {
 
     private ConfigComp config;
+
+    private PanelValueCoinComp panelValueCoin;
 
     private PanelValueLifeComp panelValueLife;
 
@@ -12,9 +14,15 @@ public class LifeComp : MonoBehaviour {
     {
         if (other.GetComponent<BallComp>())
         {
-            ++config.numLifes;
+            ++config.numCoins;
 
-            panelValueLife.updateValueLifes(config.numLifes);
+            if(config.numCoins == 10)
+            {
+                config.numCoins = 0;
+                ++config.numLifes;
+                panelValueLife.updateValueLifes(config.numLifes);
+            }
+            panelValueCoin.updateValueCoins(config.numCoins);
 
             Destroy(gameObject);
         }
@@ -24,6 +32,7 @@ public class LifeComp : MonoBehaviour {
     void Start()
     {
         config = GameObject.FindObjectOfType<ConfigComp>();
+        panelValueCoin = GameObject.FindObjectOfType<PanelValueCoinComp>();
         panelValueLife = GameObject.FindObjectOfType<PanelValueLifeComp>();
     }
 
