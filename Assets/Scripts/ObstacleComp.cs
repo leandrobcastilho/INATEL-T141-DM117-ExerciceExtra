@@ -26,24 +26,31 @@ public class ObstacleComp : MonoBehaviour {
         BallComp bolaComp = collision.gameObject.GetComponent<BallComp>();
         if (bolaComp)
         {
-            rb.AddForce(0, 0, bolaComp.resultVelocidadeHorizontal);
-
-            --config.numLifes;
-
-            painelValueLife.updateValueLifes(config.numLifes);
-
-            if (config.numLifes <= 0)
+            if( config.activeBonus)
             {
-                gameOver.Show();
-                Destroy(collision.gameObject);
-                Invoke("Reset", config.waitTime);
+                Destroy(gameObject);
             }
             else
             {
-                (gameObject.GetComponent(typeof(Collider)) as Collider).isTrigger = true;
-            }
+                rb.AddForce(0, 0, bolaComp.resultVelocidadeHorizontal);
 
-            //print("lifes: "+ config.lifes);
+                --config.numLifes;
+
+                painelValueLife.updateValueLifes(config.numLifes);
+
+                if (config.numLifes <= 0)
+                {
+                    gameOver.Show();
+                    Destroy(collision.gameObject);
+                    Invoke("Reset", config.waitTime);
+                }
+                else
+                {
+                    (gameObject.GetComponent(typeof(Collider)) as Collider).isTrigger = true;
+                }
+
+                //print("lifes: "+ config.lifes);
+            }
         }
     }
 

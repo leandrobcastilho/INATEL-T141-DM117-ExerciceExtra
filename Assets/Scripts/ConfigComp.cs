@@ -62,6 +62,22 @@ public class ConfigComp : MonoBehaviour {
 
     public float numCoins = 0;
 
+    [SerializeField]
+    [Tooltip("Numéro de tiles entre os bônus")]
+    [Range(10, 50)]
+    public int numTilesBetweenBonus = 10;
+
+    public float numTilesWithoutBonus = 0;
+
+    [SerializeField]
+    [Tooltip("Duração do Bonus")]
+    [Range(3, 10)]
+    public int bonusDuration = 3;
+
+    public float numTilesWithBonus = 0;
+
+    public bool activeBonus = false;
+
     // Use this for initialization
     void Start()
     {

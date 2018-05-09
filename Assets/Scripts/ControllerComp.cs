@@ -19,6 +19,11 @@ public class ControllerComp : MonoBehaviour {
     [SerializeField]
     [Tooltip("Referencia coin")]
     private Transform coin;
+
+    [SerializeField]
+    [Tooltip("Referencia bonus")]
+    private Transform bonus;
+
     /// <summary>
     /// ponto inicial primeiro tile
     /// </summary>
@@ -57,7 +62,7 @@ public class ControllerComp : MonoBehaviour {
         painelValueLife.updateValueLifes(config.numLifes);
         for (int i = 0; i < config.numInitialSpawn; i++)
         {
-            SpawnsProxTile( i >= config.numTileWithoutObstacle, i >= config.numTileWithoutLife, i >= config.numTileWithoutCoin);
+            SpawnsProxTile( i >= config.numTileWithoutObstacle, i >= config.numTileWithoutLife);
         }
     }
 
@@ -82,6 +87,19 @@ public class ControllerComp : MonoBehaviour {
         if (spawnCoin)
         {
             AddCoin(novoTile);
+        }
+
+        ++config.numTilesWithoutBonus;
+        bool addBonus = false;
+        if (config.numTilesWithoutBonus == config.numTilesBetweenBonus)
+        {
+            addBonus = true;
+            config.numTilesWithoutBonus = 0;
+        }
+
+        if (addBonus)
+        {
+            AddBonus(novoTile);
         }
     }
 
@@ -163,6 +181,29 @@ public class ControllerComp : MonoBehaviour {
         }
     }
 
+    private void AddBonus(Transform novoTile)
+    {
+        var pontosBonus = new List<GameObject>();
+
+        foreach (Transform filho in novoTile)
+        {
+            if (filho.CompareTag("Bonus"))
+            {
+                pontosBonus.Add(filho.gameObject);
+            }
+        }
+
+        if (pontosBonus.Count > 0)
+        {
+            var pontoBonus = pontosBonus[Random.Range(0, pontosBonus.Count)];
+
+            var pontoSpawnPos = pontoBonus.transform.position;
+
+            var novoBonus = Instantiate(bonus, pontoSpawnPos, Quaternion.identity);
+
+            novoBonus.SetParent(pontoBonus.transform);
+        }
+    }
     // Update is called once per frame
     void Update()
     {
