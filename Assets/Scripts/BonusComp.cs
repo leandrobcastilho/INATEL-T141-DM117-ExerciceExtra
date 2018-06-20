@@ -4,19 +4,17 @@ using UnityEngine;
 
 public class BonusComp : MonoBehaviour {
 
-    private ConfigComp config;
-
-    private PanelValueBonusComp panelValueBonus;
+    private ControllerComp controller;
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.GetComponent<BallComp>())
         {
-            config.activeBonus = true;
+            controller.activeBonus = true;
 
-            config.numTilesWithBonus = config.bonusDuration;
+            controller.numTilesWithBonus = controller.bonusDuration;
 
-            panelValueBonus.updateValueBonus(config.numTilesWithBonus);
+            controller.UpdateValueBonus();
 
             Destroy(gameObject);
         }
@@ -25,8 +23,7 @@ public class BonusComp : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-        config = GameObject.FindObjectOfType<ConfigComp>();
-        panelValueBonus = GameObject.FindObjectOfType<PanelValueBonusComp>();
+        controller = GameObject.FindObjectOfType<ControllerComp>();
     }
 
     // Update is called once per frame

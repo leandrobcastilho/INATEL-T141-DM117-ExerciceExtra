@@ -9,15 +9,12 @@ public class EndTileComp : MonoBehaviour {
     [Range(1, 10)]
     private float tempoVidaTile = 1.0f;
 
-    private ConfigComp config;
-
-    private PanelValueBonusComp panelValueBonus;
-
+    private ControllerComp controller;
+    
     // Use this for initialization
     void Start()
     {
-        config = GameObject.FindObjectOfType<ConfigComp>();
-        panelValueBonus = GameObject.FindObjectOfType<PanelValueBonusComp>();
+        controller = GameObject.FindObjectOfType<ControllerComp>();
     }
 
     // Update is called once per frame
@@ -30,19 +27,19 @@ public class EndTileComp : MonoBehaviour {
     {
         if (other.GetComponent<BallComp>())
         {
-            if(config.activeBonus)
+            if(controller.activeBonus)
             {
-                --config.numTilesWithBonus;
+                --controller.numTilesWithBonus;
 
-                if(config.numTilesWithBonus == 0)
+                if(controller.numTilesWithBonus == 0)
                 {
-                    config.activeBonus = false;
+                    controller.activeBonus = false;
                 }
 
-                panelValueBonus.updateValueBonus(config.numTilesWithBonus);
+                controller.UpdateValueBonus();
             }
 
-            GameObject.FindObjectOfType<ControllerComp>().SpawnsProxTile();
+            controller.SpawnsProxTile();
 
             Destroy(transform.parent.gameObject, tempoVidaTile);
         }

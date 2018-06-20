@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BallComp : MonoBehaviour {
 
-    private ConfigComp config;
+    private ControllerComp controller;
 
     public float resultVelocidadeHorizontal;
 
@@ -15,7 +15,7 @@ public class BallComp : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-        config = GameObject.FindObjectOfType<ConfigComp>();
+        controller = GameObject.FindObjectOfType<ControllerComp>();
         rb = GetComponent<Rigidbody>();
     }
 
@@ -26,33 +26,31 @@ public class BallComp : MonoBehaviour {
         if( Input.GetMouseButton(0))
         {
             
-            float direcaoX = calculaMovimento(Input.mousePosition);
-            resultVelocidadeLateral = direcaoX * config.lateralSpeed;
+            float direcaoX = CalculaMovimento(Input.mousePosition);
+            resultVelocidadeLateral = direcaoX * controller.lateralSpeed;
         }
         else
         {
             if (Input.touchCount > 0)
             {
                 Touch toque = Input.touches[0];
-                float direcaoX = calculaMovimento(toque.position);
-                resultVelocidadeLateral = direcaoX * config.lateralSpeed;
+                float direcaoX = CalculaMovimento(toque.position);
+                resultVelocidadeLateral = direcaoX * controller.lateralSpeed;
 
             }
             else
             {
                 var estimuloHorizontal = Input.GetAxis("Horizontal");
                 var estimuloVertical = Input.GetAxis("Vertical");
-                resultVelocidadeLateral = estimuloHorizontal * config.lateralSpeed;
-                resultVelocidadeHorizontal = config.horizontalSpeed + estimuloVertical * config.horizontalSpeed;
+                resultVelocidadeLateral = estimuloHorizontal * controller.lateralSpeed;
+                resultVelocidadeHorizontal = controller.horizontalSpeed + estimuloVertical * controller.horizontalSpeed;
             }
         }
-        
-
 
         rb.AddForce(resultVelocidadeLateral, 0, resultVelocidadeHorizontal);
     }
 
-    private float calculaMovimento(Vector2 posScreenSpace)
+    private float CalculaMovimento(Vector2 posScreenSpace)
     {
         float direcaoX = 0;
         var posClick = Camera.main.ScreenToViewportPoint(posScreenSpace);

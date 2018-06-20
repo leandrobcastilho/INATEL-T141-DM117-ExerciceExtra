@@ -1,34 +1,155 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class ControllerComp : MonoBehaviour {
 
+    [Header("Game Config")]
+
     [SerializeField]
-    [Tooltip("Referencia tile basico")]
+    [Tooltip("Initial number of lives")]
+    [Range(1, 5)]
+    public float initialLifes = 3;
+
+    [SerializeField]
+    [Tooltip("Basic Tile Reference")]
     private Transform tile;
 
     [SerializeField]
-    [Tooltip("Referencia obstaculo")]
+    [Tooltip("Obstacle Reference")]
     private Transform obstacle;
 
     [SerializeField]
-    [Tooltip("Referencia life")]
+    [Tooltip("Life Reference")]
     private Transform life;
 
     [SerializeField]
-    [Tooltip("Referencia coin")]
+    [Tooltip("Coin Reference")]
     private Transform coin;
 
     [SerializeField]
-    [Tooltip("Referencia bonus")]
+    [Tooltip("Bonus Reference")]
     private Transform bonus;
 
+
+    [Header("Camera Config")]
+
+    [SerializeField]
+    [Tooltip("Relative distance between camera and object")]
+    public Vector3 camOffset = new Vector3(0, 3, -6);
+
+
+
+
+    [Header("Ball Config")]
+
+    [SerializeField]
+    [Tooltip("The speed that the ball will roll laterally")]
+    [Range(1, 10)]
+    public float lateralSpeed = 5.0f;
+
+    [SerializeField]
+    [Tooltip("The speed that the ball will roll horizontally")]
+    [Range(1, 10)]
+    public float horizontalSpeed = 5.0f;
+
+
+
+
+    [Header("Game Environment Config")]
+
+    [SerializeField]
+    [Tooltip("Waiting time before starting the game")]
+    [Range(1, 5)]
+    public float waitTime = 2.0f;
+
+    [SerializeField]
+    [Tooltip("Number of tiles initial")]
+    [Range(10, 50)]
+    public int numInitialSpawn = 10;
+
+
+
+
+    [Header("Life Config")]
+
+    [SerializeField]
+    [Tooltip("Add bonus life")]
+    public bool bonusLife = true;
+
+    [SerializeField]
+    [Tooltip("Number of tiles with no life bonus")]
+    [Range(5, 50)]
+    public int numTileWithoutLife = 15;
+
+
+
+
+    [Header("Obstacle Config")]
+
+    [SerializeField]
+    [Tooltip("Number of tiles without obstacle")]
+    [Range(1, 10)]
+    public int numTileWithoutObstacle = 2;
+
+
+
+    [Header("Coins Config")]
+
+    [SerializeField]
+    [Tooltip("Number of tiles without coin")]
+    [Range(5, 50)]
+    public int numTileWithoutCoins = 5;
+
+    [SerializeField]
+    [Tooltip("Number of coins to earn a living")]
+    [Range(5, 50)]
+    public int numCoinToEarnLife = 10;
+
+
+
+
+    [Header("Bonus Config")]
+
+    [SerializeField]
+    [Tooltip("Number of tiles between the bonus")]
+    [Range(10, 50)]
+    public int numTilesBetweenBonus = 10;
+
+    [SerializeField]
+    [Tooltip("Number of tiles without the bonus")]
+    [Range(10, 50)]
+    public float numTilesWithoutBonus = 10;
+
+    private float countTilesWithoutBonus = 0;
+
+    [SerializeField]
+    [Tooltip("Bonus Duration")]
+    [Range(3, 10)]
+    public int bonusDuration = 10;
+
+
+
+    [Header("Current Info")]
+
+    public float numLifes = 0;
+
+    public float numCoins = 0;
+
+    public float numTilesWithBonus = 0;
+
+    public bool activeBonus = false;
+
+    public static bool paused;
+    
     /// <summary>
     /// ponto inicial primeiro tile
     /// </summary>
     private Vector3 pontoInicial = new Vector3(0, 0, 5);
-    
+
     /// <summary>
     /// posição inicial do proximo tile
     /// </summary>
@@ -39,34 +160,206 @@ public class ControllerComp : MonoBehaviour {
     /// </summary>
     private Quaternion proxTileRot;
 
-    private ConfigComp config;
+    private GameObject ball;
 
-    private PanelValueLifeComp painelValueLife;
+    [Header("References")]
 
-    private GameOverComp gameOver;
+    [Header("PauseMenuPainel")]
+    [SerializeField]
+    [Tooltip("PauseMenuPainel Reference")]
+    public GameObject pauseMenuPainel;
+
+    [Header("GameOverMenuPainel")]
+    [SerializeField]
+    [Tooltip("GameOverMenuPainel Reference")]
+    public GameObject gameOverMenuPainel;
+
+    [Header("InfoPanel")]
+    [SerializeField]
+    [Tooltip("InfoPanel Reference")]
+    public GameObject infoPanel;
+
+    private Text InfoLifeValue;
+    private Text InfoCoinValue;
+    private Text InfoBonusValue;
 
     // Use this for initialization
     void Start()
     {
-        config = GameObject.FindObjectOfType<ConfigComp>();
-        painelValueLife = GameObject.FindObjectOfType<PanelValueLifeComp>();
-        gameOver = GameObject.FindObjectOfType<GameOverComp>();
-
-        gameOver.Hide();
-
         //preparando o ponto inicial
         proxTilePos = pontoInicial;
         proxTileRot = Quaternion.identity;
 
-        config.numLifes = config.initialLifes;
-        painelValueLife.updateValueLifes(config.numLifes);
-        for (int i = 0; i < config.numInitialSpawn; i++)
+        paused = false;
+
+        InfoLifeValue = GameObject.FindGameObjectWithTag("InfoLifeValue").GetComponent<Text>();
+        InfoCoinValue = GameObject.FindGameObjectWithTag("InfoCoinValue").GetComponent<Text>();
+        InfoBonusValue = GameObject.FindGameObjectWithTag("InfoBonusValue").GetComponent<Text>();
+
+        InitializeTiles();
+
+        numLifes = initialLifes;
+
+        UpdateValueLifes();
+        UpdateValueCoins();
+        UpdateValueBonus();
+     
+    }
+  
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
+    
+    public void UpdateValueLifes()
+    {
+        InfoLifeValue.text = numLifes.ToString();
+    }
+
+    public void UpdateValueCoins()
+    {
+        InfoCoinValue.text = numCoins.ToString();
+    }
+
+    public void UpdateValueBonus()
+    {
+        InfoBonusValue.text = numTilesWithBonus.ToString();
+    }
+
+    /// <summary>
+    /// Metodo para pausar o jogo
+    /// </summary>
+    /// <param name="isPaused"></param>
+    public void SetPauseMenu(bool isPaused)
+    {
+        paused = isPaused;
+        PauseGame(paused);
+        //Habilita/Desabilita o menu pause
+        pauseMenuPainel.SetActive(paused);
+    }
+
+
+    public static void PauseGame(bool isPaused)
+    {
+        paused = isPaused;
+        //Se o jogo estiver paused, timescale recebe 0
+        Time.timeScale = (isPaused) ? 0 : 1;
+    }
+
+
+
+
+    public void Restart()
+    {
+        PauseGame(false);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void LoadSceneByName(string nameScene)
+    {
+        PauseGame(false);
+        SceneManager.LoadScene(nameScene);
+    }
+
+
+
+    //////////////////////////////////////////////////////////////////////
+
+    public void DestroyObj(GameObject gameObject)
+    {
+        Destroy(gameObject);
+    }
+
+    public void ResetGame(GameObject goBall)
+    {
+        ball = goBall;
+
+        gameOverMenuPainel.SetActive(true);
+
+        var buttons = gameOverMenuPainel.transform.GetComponentsInChildren<Button>();
+
+        Button continueButton = null;
+        foreach (var button in buttons)
         {
-            SpawnsProxTile( i >= config.numTileWithoutObstacle, i >= config.numTileWithoutLife);
+            if (button.name.Equals("ContinueButton"))
+            {
+                continueButton = button;
+                break;
+            }
+        }
+
+        if (continueButton != null)
+        {
+#if UNITY_ADS
+            //Se o button continue for clicado, iremos tocar o anúncio
+            StartCoroutine(ShowContinue(continueButton));
+            //buttonContinue.onClick.AddListener(UnityAdControler.ShowRewardAd);
+#else
+            //Se nao existe add, nao precisa mostrar o botao Continue
+            botaoContinue.gameObject.SetActive(false);
+#endif
+        }
+
+    }
+
+    /// <summary>
+    /// Metodo para reiniciar o jogo
+    /// </summary>
+    private void Reset()
+    {
+        paused = false;
+        //Reinicia o level
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+
+    /// <summary>
+    /// Faz o reset do jogo
+    /// </summary>
+    public void Continue()
+    {
+        gameOverMenuPainel.SetActive(false);
+        if(ball)
+            ball.SetActive(true);
+        numLifes = 1;
+        UpdateValueLifes();
+    }
+
+    public IEnumerator ShowContinue(Button continueButton)
+    {
+        var btnText = continueButton.GetComponentInChildren<Text>();
+        while (true)
+        {
+            if (UnityAdControler.nextTimeReward.HasValue && (DateTime.Now < UnityAdControler.nextTimeReward.Value))
+            {
+                continueButton.interactable = false;
+
+                TimeSpan restante = UnityAdControler.nextTimeReward.Value - DateTime.Now;
+
+                var contagemRegressiva = string.Format("{0:D2}:{1:D2}", restante.Minutes, restante.Seconds);
+                btnText.text = contagemRegressiva;
+                yield return new WaitForSeconds(1f);
+            }
+            else
+            {
+                continueButton.interactable = true;
+                continueButton.onClick.AddListener(UnityAdControler.ShowRewardAd);
+                btnText.text = "Continue (Ver Ad)";
+                break;
+            }
         }
     }
 
-    public void SpawnsProxTile(bool spawnObstacle = true, bool spawnLife = true, bool spawnCoin = true)
+    public void InitializeTiles()
+    {
+        for (int i = 0; i < numInitialSpawn; i++)
+        {
+            SpawnsProxTile(i >= numTileWithoutObstacle, i >= numTileWithoutLife, i >= numTileWithoutCoins, i >= numTilesWithoutBonus);
+        }
+    }
+
+    public void SpawnsProxTile(bool spawnObstacle = true, bool spawnLife = true, bool spawnCoin = true, bool spawnBonus = true)
     {
         var novoTile = Instantiate(tile, proxTilePos, proxTileRot);
         //detectar qual a posição do proximo
@@ -79,7 +372,7 @@ public class ControllerComp : MonoBehaviour {
             AddObstacle(novoTile);
         }
 
-        if (spawnLife && config.bonusLife )
+        if (spawnLife && bonusLife)
         {
             AddLife(novoTile);
         }
@@ -89,18 +382,21 @@ public class ControllerComp : MonoBehaviour {
             AddCoin(novoTile);
         }
 
-        ++config.numTilesWithoutBonus;
-        bool addBonus = false;
-        if (config.numTilesWithoutBonus == config.numTilesBetweenBonus)
+        if (spawnBonus)
         {
-            addBonus = true;
-            config.numTilesWithoutBonus = 0;
+            bool addBonus = false;
+            ++countTilesWithoutBonus;
+            if (countTilesWithoutBonus == numTilesWithoutBonus)
+            {
+                addBonus = true;
+                countTilesWithoutBonus = 0;
+            }
+            if (addBonus)
+            {
+                AddBonus(novoTile);
+            }
         }
 
-        if (addBonus)
-        {
-            AddBonus(novoTile);
-        }
     }
 
     private void AddObstacle(Transform novoTile)
@@ -117,7 +413,7 @@ public class ControllerComp : MonoBehaviour {
 
         if (pontosObstacles.Count > 0)
         {
-            var pontoObstacle = pontosObstacles[Random.Range(0, pontosObstacles.Count)];
+            var pontoObstacle = pontosObstacles[UnityEngine.Random.Range(0, pontosObstacles.Count)];
 
             var pontoSpawnPos = pontoObstacle.transform.position;
 
@@ -129,7 +425,7 @@ public class ControllerComp : MonoBehaviour {
 
     private void AddLife(Transform novoTile)
     {
-        int rand = Random.Range(0, 30);
+        int rand = UnityEngine.Random.Range(0, 30);
         //print("rand: " + rand);
         if (rand > 25)
         {
@@ -145,7 +441,7 @@ public class ControllerComp : MonoBehaviour {
 
             if (pontosLifes.Count > 0)
             {
-                var pontoLife = pontosLifes[Random.Range(0, pontosLifes.Count)];
+                var pontoLife = pontosLifes[UnityEngine.Random.Range(0, pontosLifes.Count)];
 
                 var pontoSpawnPos = pontoLife.transform.position;
 
@@ -171,7 +467,7 @@ public class ControllerComp : MonoBehaviour {
 
         if (pontosCoins.Count > 0)
         {
-            var pontoCoin = pontosCoins[Random.Range(0, pontosCoins.Count)];
+            var pontoCoin = pontosCoins[UnityEngine.Random.Range(0, pontosCoins.Count)];
 
             var pontoSpawnPos = pontoCoin.transform.position;
 
@@ -195,7 +491,7 @@ public class ControllerComp : MonoBehaviour {
 
         if (pontosBonus.Count > 0)
         {
-            var pontoBonus = pontosBonus[Random.Range(0, pontosBonus.Count)];
+            var pontoBonus = pontosBonus[UnityEngine.Random.Range(0, pontosBonus.Count)];
 
             var pontoSpawnPos = pontoBonus.transform.position;
 
@@ -204,9 +500,5 @@ public class ControllerComp : MonoBehaviour {
             novoBonus.SetParent(pontoBonus.transform);
         }
     }
-    // Update is called once per frame
-    void Update()
-    {
 
-    }
 }

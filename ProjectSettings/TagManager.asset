@@ -9,6 +9,9 @@ TagManager:
   - Coin
   - Obstacle
   - Bonus
+  - InfoBonusValue
+  - InfoCoinValue
+  - InfoLifeValue
   layers:
   - Default
   - TransparentFX

@@ -5,51 +5,42 @@ using UnityEngine.SceneManagement;
 
 public class ObstacleComp : MonoBehaviour {
 
-    private ConfigComp config;
+    private ControllerComp controller;
 
-    private PanelValueLifeComp painelValueLife;
-
-    private GameOverComp gameOver;
-
-    private Rigidbody rb;
-
-    /// <summary>
-    /// Resetar a cena
-    /// </summary>
-    private void Reset()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
+    [SerializeField]
+    [Tooltip("Reference to explosion")]
+    private GameObject explosion;
 
     private void OnCollisionEnter(Collision collision)
     {
-        BallComp bolaComp = collision.gameObject.GetComponent<BallComp>();
-        if (bolaComp)
+
+        if (collision.gameObject.GetComponent<BallComp>())
         {
-            if( config.activeBonus)
+            if (explosion)
             {
-                Destroy(gameObject);
+                var particles = Instantiate(explosion, transform.position, Quaternion.identity);
+                Destroy(particles, 1.0f);
             }
-            else
+            controller.DestroyObj(this.gameObject);
+
+            if (!controller.activeBonus)
             {
-                rb.AddForce(0, 0, bolaComp.resultVelocidadeHorizontal);
+                --controller.numLifes;
 
-                --config.numLifes;
+                controller.UpdateValueLifes();
 
-                painelValueLife.updateValueLifes(config.numLifes);
-
-                if (config.numLifes <= 0)
+                if (controller.numLifes <= 0)
                 {
-                    gameOver.Show();
-                    Destroy(collision.gameObject);
-                    Invoke("Reset", config.waitTime);
+                    //Destroy(collision.gameObject);
+                    //Invoke("Reset", controller.waitTime);
+                    //controller.PauseGame(true);
+                    collision.gameObject.SetActive(false);
+                    controller.ResetGame(collision.gameObject);
                 }
-                else
-                {
-                    (gameObject.GetComponent(typeof(Collider)) as Collider).isTrigger = true;
-                }
-
-                //print("lifes: "+ config.lifes);
+                //else
+                //{
+                //    (gameObject.GetComponent(typeof(Collider)) as Collider).isTrigger = true;
+                //}
             }
         }
     }
@@ -57,11 +48,7 @@ public class ObstacleComp : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-        config = GameObject.FindObjectOfType<ConfigComp>();
-        painelValueLife = GameObject.FindObjectOfType<PanelValueLifeComp>();
-        gameOver = GameObject.FindObjectOfType<GameOverComp>();
-
-        rb = GetComponent<Rigidbody>();
+        controller = GameObject.FindObjectOfType<ControllerComp>();
     }
 	
 	// Update is called once per frame

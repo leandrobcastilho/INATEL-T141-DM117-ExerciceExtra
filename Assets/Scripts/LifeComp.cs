@@ -4,17 +4,15 @@ using UnityEngine;
 
 public class LifeComp : MonoBehaviour {
 
-    private ConfigComp config;
-
-    private PanelValueLifeComp panelValueLife;
+    private ControllerComp controller;
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.GetComponent<BallComp>())
         {
-            ++config.numLifes;
+            ++controller.numLifes;
 
-            panelValueLife.updateValueLifes(config.numLifes);
+            controller.UpdateValueLifes();
 
             Destroy(gameObject);
         }
@@ -23,8 +21,7 @@ public class LifeComp : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-        config = GameObject.FindObjectOfType<ConfigComp>();
-        panelValueLife = GameObject.FindObjectOfType<PanelValueLifeComp>();
+        controller = GameObject.FindObjectOfType<ControllerComp>();
     }
 
     // Update is called once per frame

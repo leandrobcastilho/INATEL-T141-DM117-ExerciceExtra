@@ -4,25 +4,21 @@ using UnityEngine;
 
 public class CoinComp : MonoBehaviour {
 
-    private ConfigComp config;
-
-    private PanelValueCoinComp panelValueCoin;
-
-    private PanelValueLifeComp panelValueLife;
+    private ControllerComp controller;
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.GetComponent<BallComp>())
         {
-            ++config.numCoins;
+            ++controller.numCoins;
 
-            if(config.numCoins == 10)
+            if(controller.numCoins == 10)
             {
-                config.numCoins = 0;
-                ++config.numLifes;
-                panelValueLife.updateValueLifes(config.numLifes);
+                controller.numCoins = 0;
+                ++controller.numLifes;
+                controller.UpdateValueLifes();
             }
-            panelValueCoin.updateValueCoins(config.numCoins);
+            controller.UpdateValueCoins();
 
             Destroy(gameObject);
         }
@@ -31,9 +27,7 @@ public class CoinComp : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-        config = GameObject.FindObjectOfType<ConfigComp>();
-        panelValueCoin = GameObject.FindObjectOfType<PanelValueCoinComp>();
-        panelValueLife = GameObject.FindObjectOfType<PanelValueLifeComp>();
+        controller = GameObject.FindObjectOfType<ControllerComp>();
     }
 
     // Update is called once per frame

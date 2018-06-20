@@ -4,18 +4,15 @@ using UnityEngine;
 
 public class CameraComp : MonoBehaviour {
 
-    private ConfigComp config;
+    private ControllerComp controller;
 
     [SerializeField]
     private Transform alvo;
 
-    //private GameObject alvo;
-
     // Use this for initialization
     void Start()
     {
-        config = GameObject.FindObjectOfType<ConfigComp>();
-        //alvo = GameObject.Find("Bola");
+        controller = GameObject.FindObjectOfType<ControllerComp>();
     }
 
     // Update is called once per frame
@@ -23,9 +20,8 @@ public class CameraComp : MonoBehaviour {
     {
         if(alvo != null)
         {
-            //transform.LookAt(alvo.transform);
             transform.LookAt(alvo);
-            transform.position = alvo.position + config.camOffset;
+            transform.position = alvo.position + controller.camOffset;
         }
 
     }
