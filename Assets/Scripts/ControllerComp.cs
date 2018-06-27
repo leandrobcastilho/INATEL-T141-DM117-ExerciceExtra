@@ -297,7 +297,7 @@ public class ControllerComp : MonoBehaviour {
             //buttonContinue.onClick.AddListener(UnityAdControler.ShowRewardAd);
 #else
             //Se nao existe add, nao precisa mostrar o botao Continue
-            botaoContinue.gameObject.SetActive(false);
+            continueButton.gameObject.SetActive(false);
 #endif
         }
 
